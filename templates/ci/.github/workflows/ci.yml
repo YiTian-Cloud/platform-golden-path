@@ -1,0 +1,34 @@
+name: CI - {{SERVICE_NAME}}
+
+on:
+  push:
+    paths:
+      - 'services/{{SERVICE_NAME}}/**'
+      - 'infra/{{SERVICE_NAME}}-infra/**'
+      - '.github/workflows/{{SERVICE_NAME}}-ci.yml'
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install service deps
+        working-directory: services/{{SERVICE_NAME}}
+        run: npm install
+
+      - name: Run service tests
+        working-directory: services/{{SERVICE_NAME}}
+        run: npm test
+
+      - name: Install CDK infra deps
+        working-directory: infra/{{SERVICE_NAME}}-infra
+        run: |
+          npm install
+          npm run build
+          npm run synth
